@@ -27,6 +27,7 @@ $done = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM repair
 <head>
     <meta charset="UTF-8">
     <title>Repair notification system - ระบบแจ้งซ่อม</title>
+    <link rel="icon" type="image/png" href="uploads/support.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
@@ -90,29 +91,36 @@ $done = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as t FROM repair
 </head>
 
 <body>
-        <nav class="top-nav bg-white shadow-sm py-3 mb-4">
-            <div class="container d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fas fa-tools fa-2x text-primary"></i>
-                    <div>
-                        <h5 class="m-0 fw-bold text-primary" style="font-family: 'Kanit', sans-serif;">
-                            REPAIR NOTIFICATION SYSTEM
-                        </h5>
-                        <small class="text-muted">ระบบแจ้งซ่อมแผนกเทคโนโลยีสารสนเทศ</small>
-                    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3 mb-4">
+        <div class="container">
+            <div>
+                <h5 class="m-0 fw-bold d-flex align-items-center gap-2 text-primary" style="font-family: 'Kanit', sans-serif;">
+                    <i class="fas fa-tools"></i> REPAIR NOTIFICATION SYSTEM
+                </h5>
+                <small class="text-muted">ระบบแจ้งซ่อมแผนกเทคโนโลยีสารสนเทศ</small>
+            </div>
+            <div class="ms-auto d-flex align-items-center gap-4">
+                <div class="d-none d-md-flex gap-3 border-end pe-4">
+                    <a href="manual.php" class="text-decoration-none text-muted small">
+                        <i class="fas fa-book-open me-1"></i> คู่มือการใช้งาน
+                    </a>
+                    <a href="contact.php" class="text-decoration-none text-muted small">
+                        <i class="fas fa-headset me-1"></i> ติดต่อเจ้าหน้าที่
+                    </a>
                 </div>
 
                 <div class="d-flex align-items-center gap-3">
-                    <span class="d-none d-md-inline">
-                        สวัสดี, <strong><?php echo $user_name; ?></strong>
-                        <span class="badge bg-light text-dark border ms-1">(<?php echo ucfirst($user_role); ?>)</span>
+                    <span class="small">
+                        สวัสดี, <strong><?php echo $_SESSION['full_name']; ?></strong>
+                        <span class="badge bg-light text-dark border ms-1">(User)</span>
                     </span>
                     <a href="logout.php" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                        <i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ
+                        <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
                     </a>
                 </div>
             </div>
-        </nav>
+        </div>
+    </nav>
     <div class="container py-4">
         <div class="row g-3 mb-4">
             <div class="col-md-3">

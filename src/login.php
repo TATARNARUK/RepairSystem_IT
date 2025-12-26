@@ -1,71 +1,38 @@
-<?php
-session_start();
-
-// ตรวจสอบข้อมูลเมื่อมีการกดปุ่ม Login
-if (isset($_POST['student_id']) && isset($_POST['password'])) {
-
-    // กรองข้อมูลเพื่อความปลอดภัย (Prevent SQL Injection)
-    $student_id = mysqli_real_escape_string($conn, $_POST['student_id']);
-    $password = $_POST['password']; 
-
-    // 2. เช็คข้อมูลในตาราง users โดยใช้ mysqli_query
-    $sql = "SELECT id, full_name, password, role FROM users WHERE student_id = '$student_id'";
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) == 1) {
-        $row = mysqli_fetch_assoc($result);
-        
-        // 3. ตรวจสอบรหัสผ่าน (แนะนำให้ใช้ password_verify หากตอนสมัครใช้ password_hash)
-        // แต่ถ้าฐานข้อมูลน้องยังเก็บเป็น SHA1 หรือข้อความธรรมดา ให้ปรับเงื่อนไขตรงนี้ครับ
-        if (password_verify($password, $row['password']) || $password === $row['password']) {
-            
-            // 4. ถ้าผ่าน ให้สร้าง Session เพื่อไปแสดงใน Navbar
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['full_name'] = $row['full_name'];
-            $_SESSION['role'] = $row['role']; 
-
-            // ส่งไปหน้าแรก (Dashboard)
-            header('location: index.php');
-            exit();
-        } else {
-            // กรณีรหัสผ่านผิด
-            $_SESSION['error_msg'] = "รหัสผ่านไม่ถูกต้อง";
-            header('location: login.php');
-            exit();
-        }
-    } else {
-        // กรณีไม่พบรหัสนักเรียน
-        $_SESSION['error_msg'] = "ไม่พบรหัสนักเรียนในระบบ";
-        header('location: login.php');
-        exit();
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบ - Repair Bncc</title>
+    <title>เข้าสู่ระบบ - Repair notification system</title>
+    <link rel="icon" type="image/png" href="uploads/support.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-       <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
 
 body.auth-body {
+    /* สั่งปิดแถบเลื่อน (Scrollbar) ทั้งแนวตั้งและแนวนอน */
+        overflow: hidden;
     font-family: 'Kanit', sans-serif;
-    background-image: url('uploads/bg-auth.jpg'); 
+    /* เปลี่ยน URL รูปภาพพื้นหลังตามต้องการ */
+    background: url('uploads/bg-auth.jpg') no-repeat center center fixed;
     background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    height: 100vh; /* สำคัญ: กำหนดความสูงให้เต็มหน้าจอ */
-    margin: 0;
+    height: 110vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #f8f9fa; /* สีสำรอง */
 }
+
+
+/* ตกแต่ง Navbar ให้ดูพรีเมียม */
+    .navbar {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px); /* ทำพื้นหลัง Nav เบลอนิดๆ จะสวยมาก */
+        border-bottom: 2px solid #0d6efd; /* เพิ่มเส้นสีน้ำเงินบางๆ ด้านล่าง */
+    }
 
 .card-auth {
     border: none;
@@ -128,9 +95,34 @@ body.auth-body {
     background: transparent;
 }
 .btn-outline-register-red:hover { background-color: #dc3545; color: white; }
+
     </style>
 </head>
 <body class="auth-body">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top py-3">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
+            <div class="d-none d-md-block text-start">
+                        <h5 class="m-0 fw-bold text-primary" style="font-family: 'Kanit', sans-serif;">
+                            <i class="fas fa-tools"></i> REPAIR NOTIFICATION SYSTEM
+                        </h5>
+                <small class="text-muted">ระบบแจ้งซ่อมแผนกเทคโนโลยีสารสนเทศ</small>
+            </div>
+        </a>
+
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <a href="landing.php" class="text-decoration-none text-dark fw-medium small">
+                <i class="fas fa-home me-1"></i> หน้าหลัก
+            </a>
+            <div class="vr mx-2 text-muted"  style="height: 20px;"></div> <a href="#" class="text-decoration-none text-dark fw-medium small">
+                <i class="fas fa-book me-1"></i> คู่มือการแจ้งซ่อม
+            </a>
+            <a href="https://www.facebook.com/kittikun.nookeaw?locale=th_TH" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-2">
+                <i class="fas fa-headset me-1"></i> ติดต่อเจ้าหน้าที่
+            </a>
+        </div>
+    </div>
+</nav>
 
     <div class="card card-auth">
         <div class="card-body text-center">

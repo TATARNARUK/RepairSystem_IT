@@ -1,71 +1,36 @@
-<?php
-session_start();
-
-if (isset($_POST['register'])) {
-    // รับค่าจากฟอร์มและป้องกัน SQL Injection
-    $student_id = mysqli_real_escape_string($conn, $_POST['student_id']);
-    $full_name = mysqli_real_escape_string($conn, $_POST['full_name']); // ปรับเป็น full_name ตาม DB
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    
-    // 1. เช็คความยาวรหัสนักเรียน 11 หลัก
-    if (strlen($student_id) !== 11) {
-        $error_msg = "รหัสนักเรียนต้องมี 11 หลัก";
-    }
-    // 2. เช็คความยาวรหัสผ่านอย่างน้อย 8 ตัวอักษร
-    elseif (strlen($password) < 8) {
-        $error_msg = "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร";
-    }
-    // 3. เช็คว่ารหัสผ่านตรงกันไหม
-    elseif ($password !== $confirm_password) {
-        $error_msg = "รหัสผ่านยืนยันไม่ตรงกัน";
-    }
-    else {
-        // 4. เช็คว่ารหัสนักเรียนนี้มีในระบบหรือยัง
-        $sql_check = "SELECT id FROM users WHERE student_id = '$student_id'";
-        $check_result = mysqli_query($conn, $sql_check);
-        
-        if (mysqli_num_rows($check_result) > 0) {
-            $error_msg = "รหัสนักเรียนนี้ถูกลงทะเบียนไปแล้ว";
-        } else {
-            // 5. บันทึกข้อมูล (แนะนำให้ใช้ password_hash เพื่อความปลอดภัย)
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $sql_insert = "INSERT INTO users (student_id, password, full_name, role) 
-                           VALUES ('$student_id', '$hashed_password', '$full_name', 'student')";
-            
-            if (mysqli_query($conn, $sql_insert)) {
-                $success_msg = "สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ";
-            } else {
-                $error_msg = "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . mysqli_error($conn);
-            }
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สมัครสมาชิกใหม่ - Repair Bncc</title>
+    <title>สมัครสมาชิกใหม่ - Repair notification system</title>
+    <link rel="icon" type="image/png" href="uploads/support.png">
+    <link rel="icon" type="image/png" href="">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="css/style.css" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
 
 body.auth-body {
+    /* สั่งปิดแถบเลื่อน (Scrollbar) ทั้งแนวตั้งและแนวนอน */
+        overflow: hidden;
     font-family: 'Kanit', sans-serif;
-    background-image: url('uploads/bg-auth.jpg'); 
+    /* เปลี่ยน URL รูปภาพพื้นหลังตามต้องการ */
+    background: url('uploads/bg-auth.jpg') no-repeat center center fixed;
     background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    height: 100vh; /* สำคัญ: กำหนดความสูงให้เต็มหน้าจอ */
-    margin: 0;
+    height: 110vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #f8f9fa; /* สีสำรอง */
 }
+/* ตกแต่ง Navbar ให้ดูพรีเมียม */
+    .navbar {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px); /* ทำพื้นหลัง Nav เบลอนิดๆ จะสวยมาก */
+        border-bottom: 2px solid #0d6efd; /* เพิ่มเส้นสีน้ำเงินบางๆ ด้านล่าง */
+    }
 
 .card-auth {
     border: none;
@@ -131,10 +96,33 @@ body.auth-body {
     </style>
 </head>
 <body class="auth-body">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top py-3">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
+            <div class="d-none d-md-block text-start">
+                        <h5 class="m-0 fw-bold text-primary" style="font-family: 'Kanit', sans-serif;">
+                            <i class="fas fa-tools"></i> REPAIR NOTIFICATION SYSTEM
+                        </h5>
+                <small class="text-muted">ระบบแจ้งซ่อมแผนกเทคโนโลยีสารสนเทศ</small>
+            </div>
+        </a>
 
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <a href="landing.php" class="text-decoration-none text-dark fw-medium small">
+                <i class="fas fa-home me-1"></i> หน้าหลัก
+            </a>
+            <div class="vr mx-2 text-muted" style="height: 20px;"></div> <a href="#" class="text-decoration-none text-dark fw-medium small">
+                <i class="fas fa-book me-1"></i> คู่มือการแจ้งซ่อม
+            </a>
+            <a href="https://www.facebook.com/kittikun.nookeaw?locale=th_TH" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 ms-2">
+                <i class="fas fa-headset me-1"></i> ติดต่อเจ้าหน้าที่
+            </a>
+        </div>
+    </div>
+</nav>
     <div class="card card-auth">
         <div class="card-body">
-            <h2 class="text-center fw-bold mb-5">สมัครสมาชิกใหม่</h2>
+            <h2 class="text-center fw-bold mb-4 text-primary">สมัครสมาชิกใหม่</h2>
             <form id="registerForm">
                 <div class="mb-3">
                     <label class="form-label">รหัสนักเรียน</label>
@@ -198,6 +186,5 @@ body.auth-body {
             });
         });
     </script>
-    
 </body>
 </html>
